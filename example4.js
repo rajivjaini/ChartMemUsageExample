@@ -23,50 +23,61 @@ const MemoryGraph = () => {
   useEffect(() => {
     const chart = chartRef.current;
 
-    const labels = memoryData.map(data => data.time);
-    const rssData = memoryData.map(data => data.memoryUsage.rss);
-    const heapUsedData = memoryData.map(data => data.memoryUsage.heapUsed);
-    const heapTotalData = memoryData.map(data => data.memoryUsage.heapTotal);
+    if (chart && memoryData.length) {
+      const labels = memoryData.map(data => data.time);
+      const rssData = memoryData.map(data => data.memoryUsage.rss);
+      const heapUsedData = memoryData.map(data => data.memoryUsage.heapUsed);
+      const heapTotalData = memoryData.map(data => data.memoryUsage.heapTotal);
 
-    if (chart && labels.length) {
-      new Chart(chart, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'RSS Memory Usage',
-              data: rssData,
-              fill: false,
-              borderColor: 'rgba(75, 192, 192, 1)',
-              tension: 0.1,
-            },
-            {
-              label: 'Heap Used Memory Usage',
-              data: heapUsedData,
-              fill: false,
-              borderColor: 'rgba(192, 75, 192, 1)',
-              tension: 0.1,
-            },
-            {
-              label: 'Heap Total Memory Usage',
-              data: heapTotalData,
-              fill: false,
-              borderColor: 'rgba(192, 192, 75, 1)',
-              tension: 0.1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-            },
-          },
-        },
-      });
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = rssData;
+      chart.data.datasets[1].data = heapUsedData;
+      chart.data.datasets[2].data = heapTotalData;
+      chart.update();
     }
   }, [memoryData]);
+
+  useEffect(() => {
+    const chartElement = chartRef.current;
+    const chart = new Chart(chartElement, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'RSS Memory',
+            data: [],
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+          },
+          {
+            label: 'Heap Used Memory',
+            data: [],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+          },
+          {
+            label: 'Heap Total Memory',
+            data: [],
+            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+            borderColor: 'rgba(255, 206, 86, 1)',
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+
+    return () => chart.destroy();
+  }, []);
 
   return (
     <div>
